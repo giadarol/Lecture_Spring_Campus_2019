@@ -77,3 +77,11 @@ for ii, betastar in enumerate(betas_plot[::-1]):
     fig1.suptitle('Beam size at interaction point = %.3f mm \n(beta* = %.2f m)'%(3*np.sqrt(betastar*epsx)*1e3, betastar))
 
     fig1.savefig('frame_%04d.png'%ii, dpi=200)
+
+
+import os 
+os.system(' '.join([
+    'ffmpeg',
+    '-i frame_%04d.png',
+    '-c:v libx264 -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2,setpts=5*PTS"',
+    '-profile:v high -level:v 4.0 -pix_fmt yuv420p -crf 22 -codec:a aac optics.mp4']))
