@@ -102,3 +102,23 @@ for i_opt in range(1, 31):
     fig1.suptitle('Beam size at interaction point = %.f micrometers \n(beta* = %.0f cm)'%(3*np.sqrt(betastar*epsx)*1e6, 100*betastar))
     fig1.savefig('opt%03d.png'%i_opt, dpi=200)
 
+
+sigmax_mat = np.array(sigmax_mat)
+betastar_vect = np.array(betastar_vect)
+k1l_mat = np.array(k1l_mat)
+
+isort = np.argsort(betastar_vect)
+betastar_vect = np.take(betastar_vect, isort, axis=0)
+sigmax_mat = np.take(sigmax_mat, isort, axis=0)
+k1l_mat = np.take(k1l_mat, isort, axis=0)
+
+import scipy.io as sio
+sio.savemat('optics_collection.mat', {
+    'betastar_vect': betastar_vect,
+    's_quad': np.array(s_quad), 
+    's_ip': np.array(s_ip), 
+    'k1l_mat': np.array(k1l_mat),
+    's': np.array(s),
+    'sigmax_mat': np.array(sigmax_mat),
+    }, oned_as='row')
+
