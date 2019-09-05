@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 import mystyle as ms
 
-g1 = -.5e3
+g1 = -.2e3
 g2 = -0.e1
 
 def f(x):
@@ -43,15 +43,17 @@ def simulate(f, p0, T_sim, Dt, integ_step):
 
 p0 = np.array([1., 0.])
 
-T_sim = 1.3
+flag_inset = True
+
+T_sim = 3.2
 markersize = 10
 linewidth = 0
 alpha = 0.7
 
-T_sim = 3000
-markersize = 0
-linewidth = 2
-alpha = 1
+# T_sim = 6000
+# markersize = 0
+# linewidth = 2
+# alpha = 1
 
 compare_against_harmonic = True
 
@@ -69,32 +71,62 @@ fig1.set_facecolor('w')
 ax1 = fig1.add_subplot(2,1,1)
 ax2 = fig1.add_subplot(2,1,2, sharex=ax1)
 
-if compare_against_harmonic:
-    ax1.plot(t_integ_rk, np.cos(np.sqrt(-g1)*t_integ_rk), 'k', linewidth=2, alpha=1.)
-ax1.plot(t_integ_sym, p_vect_sym[:, 0], linestyle='-', linewidth=linewidth, markersize=markersize,
-    marker='.', alpha=alpha, color='blue')
-ax1.plot(t_integ_rk, p_vect_rk[:, 0], linestyle='-', linewidth=linewidth, markersize=markersize,
-    marker = '.', alpha=alpha, color='green')
+if flag_inset:
+    axins = ax1.inset_axes([0.65, 0.15, 0.24, 0.8])
+else:
+    axins = None
+
+for ax in [ax1, axins]:
+
+    if ax is None:
+        continue
+
+    if compare_against_harmonic:
+        ax.plot(t_integ_rk, np.cos(np.sqrt(-g1)*t_integ_rk), 'k', linewidth=2, alpha=1.)
+    ax.plot(t_integ_sym, p_vect_sym[:, 0], linestyle='-', linewidth=linewidth, markersize=markersize,
+        marker='.', alpha=alpha, color='blue')
+    ax.plot(t_integ_rk, p_vect_rk[:, 0], linestyle='-', linewidth=linewidth, markersize=markersize,
+        marker = '.', alpha=alpha, color='green')
 
 ax1.set_ylim(-1.2, 1.2)
+if flag_inset:
+    axins.set_xlim(2.8, 2.95)
+    axins.set_ylim(-1.1, -.5)
+    axins.set_xticklabels('')
+    axins.set_yticklabels('')
+    # axins.grid(True)
 
-ax2.plot(t_integ_sym, U(p_vect_sym[:, 0]) + K(p_vect_sym[:, 1]),
+    box, lines = ax1.indicate_inset_zoom(axins, alpha=.8, edgecolor='k')
+    for ll in lines:
+        ll.set_visible(True)
+        ll.set_linewidth(1.5)
+    box.set_linewidth(1.5)
+
+ax2.plot(t_integ_sym, U(p_vect_sym[:, 0]) + K(p_vect_sym[:, 1]), label='Symplectic',
     linestyle='-', linewidth=linewidth, markersize=markersize,
     marker='.', alpha=alpha, color='blue')
 
 ax2.plot(t_integ_rk, U(p_vect_rk[:, 0]) + K(p_vect_rk[:, 1]),
-    linestyle='-', linewidth=linewidth, markersize=markersize,
+    linestyle='-', linewidth=linewidth, markersize=markersize, label='Runge-Kutta',
     marker='.', alpha=alpha, color='green')
 
-if compare_against_harmonic:
-    ax2.plot(t_integ_rk, 0*t_integ_rk + U(p_vect_rk[0, 0]) + K(p_vect_rk[0, 0]), color='k', linewidth=2)
+E0 = U(p_vect_rk[0, 0]) + K(p_vect_rk[0, 0])
 
-ax2.set_ylim(bottom=0)
+if compare_against_harmonic:
+    ax2.plot(t_integ_rk, 0*t_integ_rk + E0, color='k', linewidth=2)
+
+ax2.set_ylim(bottom=0, top = 1.1*E0)
 ax1.set_xlim(0, T_sim*.95)
 
 ax1.grid(True)
 ax2.grid(True)
 
+ax2.set_xlabel('Turn')
+
+ax1.set_ylabel('x')
+ax2.set_ylabel('Energy')
+leg = ax2.legend(loc='lower left', prop={'size':16})
 plt.show()
 
+fig1.savefig(f'nturns_{T_sim:.0f}'+{True:'with_inset', False:''}[flag_inset]+'.png', dpi=200)
 
