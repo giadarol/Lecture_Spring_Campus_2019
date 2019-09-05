@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import mystyle as ms
+
 g1 = -.5e3
 g2 = -0.e1
 
@@ -40,26 +42,59 @@ def simulate(f, p0, T_sim, Dt, integ_step):
     return t_integ, p_vect
 
 p0 = np.array([1., 0.])
+
+T_sim = 1.3
+markersize = 10
+linewidth = 0
+alpha = 0.7
+
 T_sim = 3000
+markersize = 0
+linewidth = 2
+alpha = 1
+
+compare_against_harmonic = True
 
 Dt_rk = 0.01
 t_integ_rk, p_vect_rk = simulate(f, p0, T_sim, Dt_rk, rk_integ_step)
 
-Dt_sym = 0.03
+Dt_sym = 0.02
 t_integ_sym, p_vect_sym = simulate(f, p0, T_sim, Dt_sym, symp_integ_step)
 
 
 plt.close('all')
-fig1 = plt.figure(1)
+ms.mystyle_arial(fontsz=16, dist_tick_lab=5)
+fig1 = plt.figure(1, figsize=(8*2, 6))
+fig1.set_facecolor('w')
 ax1 = fig1.add_subplot(2,1,1)
 ax2 = fig1.add_subplot(2,1,2, sharex=ax1)
 
-ax1.plot(t_integ_sym, p_vect_sym[:, 0], linestyle='-')
-ax1.plot(t_integ_rk, p_vect_rk[:, 0], linestyle='-')
+if compare_against_harmonic:
+    ax1.plot(t_integ_rk, np.cos(np.sqrt(-g1)*t_integ_rk), 'k', linewidth=2, alpha=1.)
+ax1.plot(t_integ_sym, p_vect_sym[:, 0], linestyle='-', linewidth=linewidth, markersize=markersize,
+    marker='.', alpha=alpha, color='blue')
+ax1.plot(t_integ_rk, p_vect_rk[:, 0], linestyle='-', linewidth=linewidth, markersize=markersize,
+    marker = '.', alpha=alpha, color='green')
 
-ax2.plot(t_integ_sym, U(p_vect_sym[:, 0]) + K(p_vect_sym[:, 1]))
-ax2.plot(t_integ_rk, U(p_vect_rk[:, 0]) + K(p_vect_rk[:, 1]))
+ax1.set_ylim(-1.2, 1.2)
+
+ax2.plot(t_integ_sym, U(p_vect_sym[:, 0]) + K(p_vect_sym[:, 1]),
+    linestyle='-', linewidth=linewidth, markersize=markersize,
+    marker='.', alpha=alpha, color='blue')
+
+ax2.plot(t_integ_rk, U(p_vect_rk[:, 0]) + K(p_vect_rk[:, 1]),
+    linestyle='-', linewidth=linewidth, markersize=markersize,
+    marker='.', alpha=alpha, color='green')
+
+if compare_against_harmonic:
+    ax2.plot(t_integ_rk, 0*t_integ_rk + U(p_vect_rk[0, 0]) + K(p_vect_rk[0, 0]), color='k', linewidth=2)
 
 ax2.set_ylim(bottom=0)
+ax1.set_xlim(0, T_sim*.95)
+
+ax1.grid(True)
+ax2.grid(True)
 
 plt.show()
+
+
