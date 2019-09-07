@@ -32,18 +32,19 @@ XX, YY = np.meshgrid(ob.str_factor, ob.str_factor)
 
 n_iter_range = [0, 140]
 plot_grad = True
-#n_iter_range = [140, 141]
-#plot_grad = False
+n_iter_range = [140, 141]
+plot_grad = False
+
 
 make_avi = True
 
-scale_grad_xy = 0.02
-scale_grad_all = 4.
+scale_grad_xy = 0.2
+scale_grad_all = 20.
 i_cut = 14
 L_bar = 10
 
-vx = -ob1.grad_list[0, 0] 
-vy = -ob1.grad_list[0, 1]
+vx = -ob1.grad_list[0, 0]*scale_grad_xy 
+vy = -ob1.grad_list[0, 1]*scale_grad_xy
 mod_grad = np.sqrt(vx**2 + vy**2)
 
 mod_0 = np.sqrt(vx**2 + vy**2 + mod_grad**2) 
@@ -113,8 +114,8 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
             color='k', linewidth=2, markersize=10)
     
     if plot_grad:
-        vx = -ob1.grad_list[n_iter_plot, 0] 
-        vy = -ob1.grad_list[n_iter_plot, 1]
+        vx = -ob1.grad_list[n_iter_plot, 0]*scale_grad_xy 
+        vy = -ob1.grad_list[n_iter_plot, 1]*scale_grad_xy
         mod_grad = np.sqrt(vx**2 + vy**2)
 
         mod = np.sqrt(vx**2 + vy**2 + mod_grad**2)
@@ -122,8 +123,8 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
         vect_to_plot = []
         ax.quiver(point_list[n_iter_plot, 0], point_list[n_iter_plot,1], 
             val_list[n_iter_plot]*1.01, 
-            scale_grad_all*scale_grad_xy*vx/mod_grad/mod*mod_0, 
-            scale_grad_all*scale_grad_xy*vy/mod_grad/mod*mod_0,
+            scale_grad_all*vx/mod*mod_0, 
+            scale_grad_all*vy/mod*mod_0,
             -scale_grad_all*mod_grad/mod*mod_0, color='red') 
     
     
