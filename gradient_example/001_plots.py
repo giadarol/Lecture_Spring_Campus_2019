@@ -13,7 +13,9 @@ cost_func = np.sqrt((ob.betax_max-200)**2/200**2 + (ob.betax_min-45)**2/45**2)
 
 i_max, j_max = np.unravel_index(np.argmin(cost_func), cost_func.shape)
 
-start_point = (1.6, 1.1)
+start_point = (1.5, 1.2)
+start_point = (1.8, 1.6)
+#start_point = (1.1, 1.7)
 
 Gx_map, Gy_map = np.gradient(cost_func)
 
@@ -25,22 +27,37 @@ cost_interp = interp2d(XX, YY, cost_func.T, kind='linear')
 Gx_interp = interp2d(XX, YY, Gx_map.T, kind='linear')
 Gy_interp = interp2d(XX, YY, Gy_map.T, kind='linear')
 
-gamma = 0.001
+gamma = 0.5
 
-N_steps = 1000
+N_steps = 200
 point_list = []
 point = np.array(start_point)
+grad_list = []
+val_list = []
 for ii in range(N_steps):
-    Gx = Gx_interp(point[0], point[1])[0]
-    Gy = Gy_interp(point[0], point[1])[0]
+    #Gx = Gx_interp(point[0], point[1])[0]
+    #Gy = Gy_interp(point[0], point[1])[0]
 
-    gx = Gx / np.sqrt(Gx**2 +Gy**2)
-    gy = Gy / np.sqrt(Gx**2 +Gy**2)
+    ix = np.argmin(np.abs(ob.str_factor-point[0]))
+    iy = np.argmin(np.abs(ob.str_factor-point[1]))
+
+    Gx = Gx_map[ix, iy]
+    Gy = Gy_map[ix, iy]
+
+    gx = Gx #/ np.sqrt(Gx**2 +Gy**2)
+    gy = Gy #/ np.sqrt(Gx**2 +Gy**2)
 
     point -= gamma*np.array([gx, gy])
     point_list.append(point.copy())
 
+    grad_list.append(np.array([gx, gy]))
+
+    val_list.append(cost_interp(point[0], point[1])[0])
+    #val_list.append(cost_func[ix, iy])
+
 point_list = np.array(point_list)
+grad_list = np.array(grad_list)
+val_list = np.array(val_list)
 
 plt.close('all')
 
@@ -53,6 +70,11 @@ ax2.scatter(start_point[0], start_point[1], color='y')
 ax2.plot(point_list[:, 0], point_list[:,1], color='k', linewidth=2)
 ax2.quiver(XX.flatten(), YY.flatten(), -100*Gx_map_norm.T.flatten(), -100*Gy_map_norm.T.flatten())
 
+i_point = -1
+ax2.quiver(point_list[i_point, 0], point_list[i_point, 1],
+    -10*grad_list[i_point, 0], -10*grad_list[i_point, 1], color='r')
+
+ax2.axis('equal')
 
 fig1 = plt.figure(1, figsize=(1.4*8,1.4*6))
 ax = fig1.gca(projection='3d')
@@ -63,6 +85,7 @@ cost_func[cost_func>1]=1.
 surf = ax.plot_surface(XX[i_cut:, i_cut:], YY[i_cut:, i_cut:], 
         cost_func[i_cut:, i_cut:].T, alpha=0.5, #cmap=cm.coolwarm,
                        linewidth=0, antialiased=True)
+ax.plot(point_list[:, 0], point_list[:,1], val_list, color='k', linewidth=2)
 ax.scatter(ob.str_factor[i_max], ob.str_factor[j_max], cost_func[i_max, j_max], color='r')
 ax.set_xlabel('Q1 strength')
 ax.set_ylabel('Q2 strength')
