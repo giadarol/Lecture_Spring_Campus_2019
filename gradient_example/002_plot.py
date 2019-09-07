@@ -31,8 +31,8 @@ n_iter_range = [0, 150]
 plot_grad = True
 #n_iter_range = [40, 41]
 #plot_grad = False
-#n_iter_range = [150, 151]
-#plot_grad = True
+n_iter_range = [140, 141]
+plot_grad = True
 
 
 
@@ -54,10 +54,12 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
     
     import mystyle as ms
     ms.mystyle(fontsz=14, dist_tick_lab=5, mpl_v1_style=False)
-    
-    fig3 = plt.figure(3)
-    ax30 = plt.subplot2grid(shape=(3,1), loc=(0,0), rowspan=1, fig=fig3)
-    ax3 = plt.subplot2grid(shape=(3,1), loc=(1,0), rowspan=2, fig=fig3,
+ 
+    fig1 = plt.figure(1, figsize=(1.7*8,1.*6))
+    ax = plt.subplot2grid(shape=(5,2), loc=(0,0), rowspan=5, fig=fig1,
+            projection='3d')
+    ax30 = plt.subplot2grid(shape=(5,2), loc=(1,1), rowspan=1, fig=fig1)
+    ax3 = plt.subplot2grid(shape=(5,2), loc=(2,1), rowspan=3, fig=fig1,
             sharex=ax30)
 
     for signq in [1., -1]:
@@ -68,7 +70,7 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
             width=L_bar, linewidth=0, alpha=.5)
     ax30.grid(True)
     ax30.set_ylim(-1.9, 1.9)
-    ax30.set_ylabel('Quad. strength')
+    ax30.set_ylabel('Quad.\nstrength')
     ax30.set_xticklabels('')
     
     ax3.plot(tw.s, np.sqrt(tw.betx), color='b', linewidth=2)
@@ -81,8 +83,8 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
     ax3.grid(True)
     ax3.set_xlabel('s [m]')
     ax3.set_ylabel('Beam size [mm]')
-    fig3.subplots_adjust(bottom=.12)
-    fig3.suptitle('Iteration %d'%n_iter_plot)
+    #fig3.subplots_adjust(bottom=.11)
+    #fig3.suptitle('Iteration %d'%n_iter_plot)
     
     fig2 = plt.figure(2)
     ax2 = fig2.add_subplot(1,1,1)
@@ -92,9 +94,7 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
     
     ax2.axis('equal')
     
-    fig1 = plt.figure(1, figsize=(1.4*8,1.4*6))
-    ax = fig1.gca(projection='3d')
-    
+   
     
     cost_func[cost_func>1]=1.
     surf = ax.plot_surface(XX[i_cut:, i_cut:], YY[i_cut:, i_cut:], 
@@ -120,7 +120,7 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
     ax.set_ylabel('Q2 strength', labelpad=10)
     ax.set_zlabel('Cost function')
     
-    fig1.subplots_adjust(bottom=.02, top=.98, left=.02, right=.98)
+    fig1.subplots_adjust(top=1., left=.0)
     ax.azim=59
     ax.elev=16
     
@@ -134,6 +134,5 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
     fig1.suptitle('Iteration %d'%n_iter_plot)
     
     fig1.savefig('grad_3d_iter%03d.png'%n_iter_plot, dpi=200)
-    fig3.savefig('grad_optics_iter%03d.png'%n_iter_plot, dpi=200)
 
 plt.show()
