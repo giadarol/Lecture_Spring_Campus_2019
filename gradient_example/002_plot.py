@@ -24,20 +24,21 @@ cost_func = ob1.cost_func
 
 point_list = ob1.point_list
 val_list = ob1.val_list
+grad_list = ob1.grad_list
+
+grad_list[0, :] = grad_list[1, :] # pathing a small bug :-)
 
 XX, YY = np.meshgrid(ob.str_factor, ob.str_factor)
 
-n_iter_range = [0, 150]
+n_iter_range = [0, 140]
 plot_grad = True
-#n_iter_range = [40, 41]
-#plot_grad = False
 n_iter_range = [140, 141]
 plot_grad = True
 
-
+make_avi = True
 
 scale_grad_xy = 0.02
-scale_grad_all = 2.
+scale_grad_all = 4.
 i_cut = 14
 L_bar = 10
 
@@ -53,13 +54,16 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
     plt.close('all')
     
     import mystyle as ms
-    ms.mystyle(fontsz=14, dist_tick_lab=5, mpl_v1_style=False)
+    ms.mystyle(fontsz=14, dist_tick_lab=None, mpl_v1_style=False)
  
     fig1 = plt.figure(1, figsize=(1.7*8,1.*6))
-    ax = plt.subplot2grid(shape=(5,2), loc=(0,0), rowspan=5, fig=fig1,
+    ax = plt.subplot2grid(shape=(5,5), loc=(0,0), 
+            rowspan=5, colspan=3, fig=fig1,
             projection='3d')
-    ax30 = plt.subplot2grid(shape=(5,2), loc=(1,1), rowspan=1, fig=fig1)
-    ax3 = plt.subplot2grid(shape=(5,2), loc=(2,1), rowspan=3, fig=fig1,
+    ax30 = plt.subplot2grid(shape=(5,5), loc=(1,3), 
+            rowspan=1, colspan=2, fig=fig1)
+    ax3 = plt.subplot2grid(shape=(5,5), loc=(2, 3),
+            rowspan=3, colspan=2, fig=fig1,
             sharex=ax30)
 
     for signq in [1., -1]:
@@ -83,8 +87,6 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
     ax3.grid(True)
     ax3.set_xlabel('s [m]')
     ax3.set_ylabel('Beam size [mm]')
-    #fig3.subplots_adjust(bottom=.11)
-    #fig3.suptitle('Iteration %d'%n_iter_plot)
     
     fig2 = plt.figure(2)
     ax2 = fig2.add_subplot(1,1,1)
@@ -98,19 +100,19 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
     
     cost_func[cost_func>1]=1.
     surf = ax.plot_surface(XX[i_cut:, i_cut:], YY[i_cut:, i_cut:], 
-            cost_func[i_cut:, i_cut:].T, alpha=0.5, #cmap=cm.coolwarm,
+            cost_func[i_cut:, i_cut:].T, alpha=0.4, #cmap=cm.coolwarm,
                            linewidth=0, antialiased=True)
-    ax.plot(point_list[:n_iter_plot, 0], point_list[:n_iter_plot,1], 
-            val_list[:n_iter_plot], '.-',
+    ax.plot(point_list[:n_iter_plot+1, 0], point_list[:n_iter_plot+1,1], 
+            val_list[:n_iter_plot+1], '.-',
             color='k', linewidth=2, markersize=10)
     
     if plot_grad:
-        vx = -ob1.grad_list[n_iter_plot-1, 0] 
-        vy = -ob1.grad_list[n_iter_plot-1, 1]
+        vx = -ob1.grad_list[n_iter_plot, 0] 
+        vy = -ob1.grad_list[n_iter_plot, 1]
         mod_grad = np.sqrt(vx**2 + vy**2)
         vect_to_plot = []
-        ax.quiver(point_list[n_iter_plot-1, 0], point_list[n_iter_plot-1,1], 
-            val_list[n_iter_plot-1]*1.01, 
+        ax.quiver(point_list[n_iter_plot, 0], point_list[n_iter_plot,1], 
+            val_list[n_iter_plot]*1.01, 
             scale_grad_all*scale_grad_xy*vx/mod_grad, 
             scale_grad_all*scale_grad_xy*vy/mod_grad,
             -scale_grad_all*mod_grad, color='red') 
@@ -120,19 +122,31 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
     ax.set_ylabel('Q2 strength', labelpad=10)
     ax.set_zlabel('Cost function')
     
-    fig1.subplots_adjust(top=1., left=.0)
+    fig1.subplots_adjust(top=1., left=.0, wspace=.6, bottom=.12)
     ax.azim=59
     ax.elev=16
     
     ax.azim=104
     ax.elev=12
     
-    ax.azim=112
-    ax.elev=12
+    ax.azim=121
+    ax.elev=12.5
     
     
-    fig1.suptitle('Iteration %d'%n_iter_plot)
+    fig1.suptitle('\nIteration %d'%n_iter_plot)
     
     fig1.savefig('grad_3d_iter%03d.png'%n_iter_plot, dpi=200)
 
 plt.show()
+
+
+if make_avi:
+    
+    for ii in range(n_iter_plot+1, n_iter_plot+10):
+        fig1.savefig('grad_3d_iter%03d.png'%(ii), dpi=200) 
+    import os 
+    os.system(' '.join([
+        'ffmpeg',
+        '-i grad_3d_iter%03d.png',
+        '-c:v libx264 -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2,setpts=7*PTS"',
+        '-profile:v high -level:v 4.0 -pix_fmt yuv420p -crf 22 -codec:a aac gradient.mp4']))
