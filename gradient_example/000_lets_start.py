@@ -85,7 +85,7 @@ mad.input(sequence)
 mad.input('beam, particle = proton, sequence=toyring, energy = 6500., NPART=1.05E11, sige= 2.5e;')
 mad.use('toyring')
 
-str_factor_list = np.linspace(.8, 1.8, 50)
+str_factor_list = np.linspace(.7, 2, 20)
 
 plt.close('all')
 fig1 = plt.figure()
@@ -107,8 +107,24 @@ for ii1, ff1 in enumerate(str_factor_list):
         except:
             print('Skipped')
 
-figure(); pcolormesh(betax_max); colorbar()
-figure(); pcolormesh(betax_min); colorbar()
+plt.figure(); plt.pcolormesh(betax_max.T, vmax=500); plt.colorbar()
+plt.figure(); plt.pcolormesh(betax_min.T, vmax=200); plt.colorbar()
+
+cost_func = np.sqrt((betax_max-200)**2 + 4*(betax_min-40)**2)
+
+i_max, j_max = np.unravel_index(np.argmin(cost_func), cost_func.shape)
+
+plt.figure(); pcolormesh(cost_func.T, vmax = 100)
+plt.plot(i_max, j_max, '.', color='r', markersize = 10)
+
+import scipy.io as sio
+sio.savemat('twiss_res.mat', {
+    'k1l_quad': k1l_quad,
+    'str_factor': str_factor_list,
+    'betax_max': betax_max,
+    'betax_min': betax_min,
+    }, oned_as='row')
+
 
 plt.show()
 
