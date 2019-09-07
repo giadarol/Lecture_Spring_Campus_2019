@@ -32,7 +32,7 @@ XX, YY = np.meshgrid(ob.str_factor, ob.str_factor)
 
 n_iter_range = [0, 140]
 plot_grad = True
-#n_iter_range = [0, 1]
+#n_iter_range = [140, 141]
 #plot_grad = False
 
 make_avi = True
