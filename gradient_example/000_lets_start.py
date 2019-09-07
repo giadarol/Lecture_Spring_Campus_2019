@@ -79,10 +79,14 @@ for i_arc in range(n_arcs):
 sequence+='''
 end_machine: marker at=circum;
 endsequence;
+
+beam, particle = proton, sequence=toyring, energy = 6500., NPART=1.05E11, sige= 2.5e;
 '''
 
+with open('sequence.seq', 'w') as fid:
+    fid.write(sequence)
+
 mad.input(sequence)
-mad.input('beam, particle = proton, sequence=toyring, energy = 6500., NPART=1.05E11, sige= 2.5e;')
 mad.use('toyring')
 
 str_factor_list = np.linspace(.7, 2, 50)

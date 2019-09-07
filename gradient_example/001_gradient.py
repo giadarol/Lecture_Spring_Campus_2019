@@ -9,7 +9,10 @@ import myfilemanager as mfm
 
 ob = mfm.myloadmat_to_obj('twiss_res.mat')
 
-cost_func = np.sqrt((ob.betax_max-200)**2/200**2 + (ob.betax_min-45)**2/45**2)
+target_betax_max = 200.
+target_betax_min = 45.
+cost_func = np.sqrt((ob.betax_max-target_betax_max)**2/target_betax_max**2 \
+                  + (ob.betax_min-target_betax_min)**2/target_betax_min**2)
 
 i_max, j_max = np.unravel_index(np.argmin(cost_func), cost_func.shape)
 
@@ -24,8 +27,6 @@ Gy_map_norm = Gy_map / np.sqrt(Gx_map**2 + Gy_map**2)
 
 XX, YY = np.meshgrid(ob.str_factor, ob.str_factor)
 cost_interp = interp2d(XX, YY, cost_func.T, kind='linear')
-Gx_interp = interp2d(XX, YY, Gx_map.T, kind='linear')
-Gy_interp = interp2d(XX, YY, Gy_map.T, kind='linear')
 
 gamma = 0.5
 
@@ -35,8 +36,6 @@ point = np.array(start_point)
 grad_list = []
 val_list = []
 for ii in range(N_steps):
-    #Gx = Gx_interp(point[0], point[1])[0]
-    #Gy = Gy_interp(point[0], point[1])[0]
 
     ix = np.argmin(np.abs(ob.str_factor-point[0]))
     iy = np.argmin(np.abs(ob.str_factor-point[1]))
@@ -68,11 +67,11 @@ plt.colorbar()
 ax2.scatter(ob.str_factor[i_max], ob.str_factor[j_max], color='r')
 ax2.scatter(start_point[0], start_point[1], color='y')
 ax2.plot(point_list[:, 0], point_list[:,1], color='k', linewidth=2)
-ax2.quiver(XX.flatten(), YY.flatten(), -100*Gx_map_norm.T.flatten(), -100*Gy_map_norm.T.flatten())
+#ax2.quiver(XX.flatten(), YY.flatten(), -100*Gx_map_norm.T.flatten(), -100*Gy_map_norm.T.flatten())
 
-i_point = -1
-ax2.quiver(point_list[i_point, 0], point_list[i_point, 1],
-    -10*grad_list[i_point, 0], -10*grad_list[i_point, 1], color='r')
+#i_point = -1
+#ax2.quiver(point_list[i_point, 0], point_list[i_point, 1],
+#    -10*grad_list[i_point, 0], -10*grad_list[i_point, 1], color='r')
 
 ax2.axis('equal')
 
@@ -85,7 +84,8 @@ cost_func[cost_func>1]=1.
 surf = ax.plot_surface(XX[i_cut:, i_cut:], YY[i_cut:, i_cut:], 
         cost_func[i_cut:, i_cut:].T, alpha=0.5, #cmap=cm.coolwarm,
                        linewidth=0, antialiased=True)
-ax.plot(point_list[:, 0], point_list[:,1], val_list, color='k', linewidth=2)
+ax.plot(point_list[:, 0], point_list[:,1], val_list, '.-',
+        color='k', linewidth=2, markersize=10)
 ax.scatter(ob.str_factor[i_max], ob.str_factor[j_max], cost_func[i_max, j_max], color='r')
 ax.set_xlabel('Q1 strength')
 ax.set_ylabel('Q2 strength')
@@ -95,5 +95,12 @@ fig1.subplots_adjust(bottom=.02, top=.98, left=.02, right=.98)
 ax.azim=59
 ax.elev=16
 
+import scipy.io as sio
+sio.savemat('gradient_discent.mat', {
+    'target_betax_max': target_betax_max,
+    'target_betax_min': target_betax_min,
+    'cost_func': cost_func,
+    'point_list': point_list,
+    'val_list': val_list})
 
 plt.show()
