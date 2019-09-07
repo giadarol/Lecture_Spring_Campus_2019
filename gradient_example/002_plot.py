@@ -7,9 +7,16 @@ from matplotlib import cm
 
 import myfilemanager as mfm
 
+from cpymad.madx import Madx
+
 ob = mfm.myloadmat_to_obj('twiss_res.mat')
 ob1 = mfm.myloadmat_to_obj('gradient_discent.mat')
 
+mad = Madx()
+
+with open('sequence.seq', 'r') as fid:
+    mad.input(fid.read())
+mad.use('toyring')
 
 target_betax_max = ob1.target_betax_max
 target_betax_min = ob1.target_betax_min
@@ -20,11 +27,36 @@ val_list = ob1.val_list
 
 XX, YY = np.meshgrid(ob.str_factor, ob.str_factor)
 
-n_iter_plot = 60
+n_iter_plot = 40
 plot_grad = True
 scale_grad_xy = 0.02
 scale_grad_all = 2.
+
+ff1 = point_list[n_iter_plot-1, 0]
+ff2 = point_list[n_iter_plot-1, 1]
+
+mad.input('kqf := %e'%(ff1*ob.k1l_quad))
+mad.input('kqd := %e'%(-ff2*ob.k1l_quad))
+tw = mad.twiss()
+
 plt.close('all')
+
+import mystyle as ms
+ms.mystyle(fontsz=14, dist_tick_lab=5, mpl_v1_style=False)
+
+fig3 = plt.figure(3)
+ax3 = fig3.add_subplot(1,1,1)
+ax3.plot(tw.s, np.sqrt(tw.betx), color='b', linewidth=2)
+ax3.axhline(y=np.sqrt(target_betax_max), 
+        linestyle='-', linewidth=2, color='r')
+ax3.axhline(y=np.sqrt(target_betax_min), 
+        linestyle='-', linewidth=2, color='r')
+ax3.set_xlim(0, 500)
+ax3.set_ylim(0, 18)
+ax3.grid(True)
+ax3.set_xlabel('s [m]')
+ax3.set_ylabel('Beam size [mm]')
+fig3.subplots_adjust(bottom=.12)
 
 fig2 = plt.figure(2)
 ax2 = fig2.add_subplot(1,1,1)
@@ -59,8 +91,8 @@ if plot_grad:
         -scale_grad_all*mod_grad, color='red') 
 
 
-ax.set_xlabel('Q1 strength')
-ax.set_ylabel('Q2 strength')
+ax.set_xlabel('Q1 strength', labelpad=10)
+ax.set_ylabel('Q2 strength', labelpad=10)
 ax.set_zlabel('Cost function')
 
 fig1.subplots_adjust(bottom=.02, top=.98, left=.02, right=.98)
