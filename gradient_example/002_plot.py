@@ -42,6 +42,12 @@ scale_grad_all = 4.
 i_cut = 14
 L_bar = 10
 
+vx = -ob1.grad_list[0, 0] 
+vy = -ob1.grad_list[0, 1]
+mod_grad = np.sqrt(vx**2 + vy**2)
+
+mod_0 = np.sqrt(vx**2 + vy**2 + mod_grad**2) 
+
 for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
 
     ff1 = point_list[n_iter_plot, 0]
@@ -110,12 +116,15 @@ for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
         vx = -ob1.grad_list[n_iter_plot, 0] 
         vy = -ob1.grad_list[n_iter_plot, 1]
         mod_grad = np.sqrt(vx**2 + vy**2)
+
+        mod = np.sqrt(vx**2 + vy**2 + mod_grad**2)
+
         vect_to_plot = []
         ax.quiver(point_list[n_iter_plot, 0], point_list[n_iter_plot,1], 
             val_list[n_iter_plot]*1.01, 
-            scale_grad_all*scale_grad_xy*vx/mod_grad, 
-            scale_grad_all*scale_grad_xy*vy/mod_grad,
-            -scale_grad_all*mod_grad, color='red') 
+            scale_grad_all*scale_grad_xy*vx/mod_grad/mod*mod_0, 
+            scale_grad_all*scale_grad_xy*vy/mod_grad/mod*mod_0,
+            -scale_grad_all*mod_grad/mod*mod_0, color='red') 
     
     
     ax.set_xlabel('Q1 strength', labelpad=10)
