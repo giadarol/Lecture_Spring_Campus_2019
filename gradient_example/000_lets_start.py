@@ -85,7 +85,7 @@ mad.input(sequence)
 mad.input('beam, particle = proton, sequence=toyring, energy = 6500., NPART=1.05E11, sige= 2.5e;')
 mad.use('toyring')
 
-str_factor_list = np.linspace(.7, 2, 20)
+str_factor_list = np.linspace(.7, 2, 50)
 
 plt.close('all')
 fig1 = plt.figure()
@@ -114,7 +114,7 @@ cost_func = np.sqrt((betax_max-200)**2 + 4*(betax_min-40)**2)
 
 i_max, j_max = np.unravel_index(np.argmin(cost_func), cost_func.shape)
 
-plt.figure(); pcolormesh(cost_func.T, vmax = 100)
+plt.figure(); plt.pcolormesh(cost_func.T, vmax = 100); plt.colorbar()
 plt.plot(i_max, j_max, '.', color='r', markersize = 10)
 
 import scipy.io as sio
