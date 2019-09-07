@@ -101,6 +101,7 @@ sio.savemat('gradient_discent.mat', {
     'target_betax_min': target_betax_min,
     'cost_func': cost_func,
     'point_list': point_list,
-    'val_list': val_list})
+    'val_list': val_list,
+    'grad_list': grad_list})
 
 plt.show()

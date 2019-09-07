@@ -20,6 +20,10 @@ val_list = ob1.val_list
 
 XX, YY = np.meshgrid(ob.str_factor, ob.str_factor)
 
+n_iter_plot = 60
+plot_grad = True
+scale_grad_xy = 0.02
+scale_grad_all = 2.
 plt.close('all')
 
 fig2 = plt.figure(2)
@@ -39,8 +43,22 @@ cost_func[cost_func>1]=1.
 surf = ax.plot_surface(XX[i_cut:, i_cut:], YY[i_cut:, i_cut:], 
         cost_func[i_cut:, i_cut:].T, alpha=0.5, #cmap=cm.coolwarm,
                        linewidth=0, antialiased=True)
-ax.plot(point_list[:, 0], point_list[:,1], val_list, '.-',
+ax.plot(point_list[:n_iter_plot, 0], point_list[:n_iter_plot,1], 
+        val_list[:n_iter_plot], '.-',
         color='k', linewidth=2, markersize=10)
+
+if plot_grad:
+    vx = -ob1.grad_list[n_iter_plot-1, 0] 
+    vy = -ob1.grad_list[n_iter_plot-1, 1]
+    mod_grad = np.sqrt(vx**2 + vy**2)
+    vect_to_plot = []
+    ax.quiver(point_list[n_iter_plot-1, 0], point_list[n_iter_plot-1,1], 
+        val_list[n_iter_plot-1]*1.01, 
+        scale_grad_all*scale_grad_xy*vx/mod_grad, 
+        scale_grad_all*scale_grad_xy*vy/mod_grad,
+        -scale_grad_all*mod_grad, color='red') 
+
+
 ax.set_xlabel('Q1 strength')
 ax.set_ylabel('Q2 strength')
 ax.set_zlabel('Cost function')
@@ -48,6 +66,12 @@ ax.set_zlabel('Cost function')
 fig1.subplots_adjust(bottom=.02, top=.98, left=.02, right=.98)
 ax.azim=59
 ax.elev=16
+
+ax.azim=104
+ax.elev=12
+
+ax.azim=112
+ax.elev=12
 
 
 plt.show()
