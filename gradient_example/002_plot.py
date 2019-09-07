@@ -32,8 +32,8 @@ XX, YY = np.meshgrid(ob.str_factor, ob.str_factor)
 
 n_iter_range = [0, 140]
 plot_grad = True
-n_iter_range = [140, 141]
-plot_grad = False
+#n_iter_range = [0, 1]
+#plot_grad = False
 
 make_avi = True
 
@@ -44,8 +44,8 @@ L_bar = 10
 
 for n_iter_plot in range(n_iter_range[0], n_iter_range[1]):
 
-    ff1 = point_list[n_iter_plot-1, 0]
-    ff2 = point_list[n_iter_plot-1, 1]
+    ff1 = point_list[n_iter_plot, 0]
+    ff2 = point_list[n_iter_plot, 1]
     
     mad.input('kqf := %e'%(ff1*ob.k1l_quad))
     mad.input('kqd := %e'%(-ff2*ob.k1l_quad))
@@ -142,8 +142,6 @@ plt.show()
 
 if make_avi:
     
-    for ii in range(n_iter_plot+1, n_iter_plot+10):
-        fig1.savefig('grad_3d_iter%03d.png'%(ii), dpi=200) 
     import os 
     os.system(' '.join([
         'ffmpeg',
