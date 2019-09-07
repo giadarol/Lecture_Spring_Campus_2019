@@ -27,10 +27,13 @@ val_list = ob1.val_list
 
 XX, YY = np.meshgrid(ob.str_factor, ob.str_factor)
 
-n_iter_range = [0, 40]
+n_iter_range = [0, 150]
 plot_grad = True
 #n_iter_range = [40, 41]
 #plot_grad = False
+#n_iter_range = [150, 151]
+#plot_grad = True
+
 
 
 scale_grad_xy = 0.02

@@ -18,6 +18,7 @@ i_max, j_max = np.unravel_index(np.argmin(cost_func), cost_func.shape)
 
 start_point = (1.5, 1.2)
 start_point = (1.8, 1.6)
+start_point = (1.8, 1.0)
 #start_point = (1.1, 1.7)
 
 Gx_map, Gy_map = np.gradient(cost_func)
@@ -67,7 +68,7 @@ plt.colorbar()
 ax2.scatter(ob.str_factor[i_max], ob.str_factor[j_max], color='r')
 ax2.scatter(start_point[0], start_point[1], color='y')
 ax2.plot(point_list[:, 0], point_list[:,1], color='k', linewidth=2)
-#ax2.quiver(XX.flatten(), YY.flatten(), -100*Gx_map_norm.T.flatten(), -100*Gy_map_norm.T.flatten())
+ax2.quiver(XX.flatten(), YY.flatten(), -100*Gx_map_norm.T.flatten(), -100*Gy_map_norm.T.flatten())
 
 #i_point = -1
 #ax2.quiver(point_list[i_point, 0], point_list[i_point, 1],
